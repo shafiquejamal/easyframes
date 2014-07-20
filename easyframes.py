@@ -52,5 +52,5 @@ class hhkit(object):
 		result = df[include].groupby(groupby)[col].agg([operation])
 		result.rename(columns={operation:column_label}, inplace=True)
 		merged = pd.merge(df, result, left_on=groupby, right_index=True, how='left')
-		merged['include'] = include
+		# merged['include'] = include
 		return merged
