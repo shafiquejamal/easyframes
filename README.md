@@ -96,7 +96,8 @@ The result:
 ```
 You can also exclude members over 22 years of age:
 ```
-df = myhhkit.egen(df, operation='count', groupby='hh', col='hh', column_label='hhs_o22',     exclude=df['age']>22)
+df = myhhkit.egen(df, operation='count', groupby='hh', col='hh', column_label='hhs_o22', 
+	exclude=df['age']>22)
 ```
 If you don't specify the column label, then a default is constructed:
 ```
