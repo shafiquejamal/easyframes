@@ -1,4 +1,4 @@
-from easyframes.easyframes import hhkit
+from EasyFrames.easyframes import easyframes
 
 df_original = pd.read_csv('sample_hh_dataset.csv')
 df = df_original.copy()

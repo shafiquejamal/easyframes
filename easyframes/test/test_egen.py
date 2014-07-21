@@ -4,7 +4,8 @@ import pandas as pd
 from pandas.util.testing import assert_series_equal
 import numpy as np
 
-from easyframes import hhkit
+from easyframes.easyframes import hhkit
+# from easyframes.easyframes import hhkit
 
 class TestEasyFrames(unittest.TestCase):
 
