@@ -57,8 +57,7 @@ and Bob's your uncle:
 
 Ok, so it doesn't save much typing or space, but suppose you want to calculate the average age in the household. Here you would simply add
 ```
-df = myhhkit.egen(df, operation='mean', groupby='hh', col='age', 
-    column_label='mean age in hh')
+df = myhhkit.egen(df, operation='mean', groupby='hh', col='age', column_label='mean age in hh')
 ```
 and the result:
 ```
@@ -77,7 +76,7 @@ and the result:
 
 You can also include or exclude certain rows. For example, suppose we want to include in household size only members over the age of 22:
 ```
-df = myhhkit.egen(df, operation='count', groupby='hh', col='hh', column_label='hhs_o22',     include=df['age']>22)
+df = myhhkit.egen(df, operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=df['age']>22)
 
 ```
 The result:
