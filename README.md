@@ -33,7 +33,7 @@ merged = pd.merge(df, result, left_on='hh', right_index=True, how='left')
 Using this package, the command would be:
 
 ```
-from easyframes import hhkit
+from easyframes.easyframes import hhkit
 
 myhhkit = hhkit()
 df = myhhkit.egen(df, operation='count', groupby='hh', col='hh', column_label='hhsize')

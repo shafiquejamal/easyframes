@@ -7,7 +7,7 @@ import numpy as np
 from easyframes.easyframes import hhkit
 # from easyframes.easyframes import hhkit
 
-class TestEasyFrames(unittest.TestCase):
+class Testhhkit(unittest.TestCase):
 
 	def setUp(self):
 
