@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='EasyFrames',
-    version='0.1.1',
+    version='0.1.2',
     author='Shafique Jamal',
     author_email='shafique.jamal@gmail.com',
     packages=['easyframes', 'easyframes.test'],

@@ -4,6 +4,7 @@ LICENSE.txt
 NOTICE.txt
 README.txt
 setup.py
+statafilereadable.txt
 bin/sample_script.py
 easyframes/__init__.py
 easyframes/easyframes.py

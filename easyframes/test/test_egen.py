@@ -33,6 +33,7 @@ class Testhhkit(unittest.TestCase):
 		self.my_include = np.array([False, False, False, True, True, False, True, True, True, False])
 		self.my_include_using_integer = np.array([0, 0, 0, 1, 5, 0, -10, -30, -1, 0])
 		self.my_include_using_float   = np.array([0, 0, 0, 1, 10.3, 0, -10, -30, -1, 0])
+		self.my_include_using_nonnumeric = np.array(['0', 0, 0, 1, 10.3, 0, -10, -30, -1, 0])
 
 	def test_reject_both_exclude_and_include(self):
 		
@@ -41,7 +42,7 @@ class Testhhkit(unittest.TestCase):
 			df2 = myhhkit.egen(self.df, operation='count', groupby='hh', col='hh', 
 				exclude=self.my_include, include=self.my_include)
 		except:
-			return
+			return True
 		raise Exception("Both include and exclude were allowed")
 
 	def test_no_include_no_exclude_includes_all_rows(self):
@@ -86,6 +87,14 @@ class Testhhkit(unittest.TestCase):
 		df2 = myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include_using_float)
 		correct_values = pd.Series([33.333333, 33.333333, 33.333333, np.nan, 20, 20, 15, 15, 15, 15])
 		assert_series_equal(correct_values, df2['(mean) age by hh'])
+
+	def test_using_nonnumeric_exclude_type(self):
+		myhhkit = hhkit()
+		try:
+			df2 = myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include_using_nonnumeric)
+		except:
+			return True
+		return False
 
 if __name__ == '__main__':
 
