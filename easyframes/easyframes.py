@@ -68,9 +68,11 @@ class hhkit(pd.DataFrame):
 			list_of_vars = varlist
 		print('obs: %d' % self.df.shape[0])
 		print('vars: %d' % len(list_of_vars))
-		print('--------'.rjust(varnamewidth), '---------'.rjust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
-		print('Variable'.rjust(varnamewidth), 'Data Type'.rjust(vartypewidth), ' ', 'Variable Label'.ljust(varlabelwidth), end='\n')
-		print('--------'.rjust(varnamewidth), '---------'.rjust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
+		print('--------'.ljust(varnamewidth), '---------'.ljust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
+		print('Variable'.ljust(varnamewidth), 'Data Type'.ljust(vartypewidth), ' ', 'Variable Label'.ljust(varlabelwidth), end='\n')
+		print('--------'.ljust(varnamewidth), '---------'.ljust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
 		for x in list_of_vars:
-			print(repr(x).rjust(varnamewidth), str(self.df[x].dtype).rjust(vartypewidth), ' ', self.variable_labels[x].ljust(varlabelwidth), end='\n')
-		
+			print(repr(x).ljust(varnamewidth), str(self.df[x].dtype).ljust(vartypewidth), ' ', self.variable_labels[x].ljust(varlabelwidth), end='\n')
+	
+	def statamerge(self, df_using_right):
+		pass

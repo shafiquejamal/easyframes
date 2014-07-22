@@ -7,7 +7,7 @@ import numpy as np
 from easyframes.easyframes import hhkit
 # from easyframes.easyframes import hhkit
 
-class Testhhkit(unittest.TestCase):
+class TestEgen(unittest.TestCase):
 
 	def setUp(self):
 
@@ -47,46 +47,46 @@ class Testhhkit(unittest.TestCase):
 
 	def test_no_include_no_exclude_includes_all_rows(self):
 		myhhkit = hhkit()
-		df2 = myhhkit.egen(self.df, operation='count', groupby='hh', col='hh')
+		myhhkit.egen(self.df, operation='count', groupby='hh', col='hh')
 		correct_values = pd.Series([3, 3, 3, 1, 2, 2, 4, 4, 4, 4])
-		assert_series_equal(correct_values, df2['(count) hh by hh'])
+		assert_series_equal(correct_values, myhhkit.df['(count) hh by hh'])
 				
 	def test_specify_include_yields_correct_results_count(self):
 		myhhkit = hhkit()
-		df2 = myhhkit.egen(self.df, operation='count', groupby='hh', col='hh', include=self.my_include)
+		myhhkit.egen(self.df, operation='count', groupby='hh', col='hh', include=self.my_include)
 		correct_values = pd.Series([np.nan, np.nan, np.nan, 1, 1, 1, 3, 3, 3, 3])
-		assert_series_equal(correct_values, df2['(count) hh by hh'])
+		assert_series_equal(correct_values, myhhkit.df['(count) hh by hh'])
 
 	def test_specify_include_yields_correct_results_mean(self):
 		myhhkit = hhkit()
-		df2 = myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', include=self.my_include)
+		myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', include=self.my_include)
 		correct_values = pd.Series([np.nan, np.nan, np.nan, 70, 23, 23, 26.666666, 26.666666, 
 																		26.666666, 26.666666])
-		assert_series_equal(correct_values, df2['(mean) age by hh'])
+		assert_series_equal(correct_values, myhhkit.df['(mean) age by hh'])
 
 	def test_specify_exclude_yields_correct_results_count(self):
 		myhhkit = hhkit()
-		df2 = myhhkit.egen(self.df, operation='count', groupby='hh', col='hh', exclude=self.my_include)
+		myhhkit.egen(self.df, operation='count', groupby='hh', col='hh', exclude=self.my_include)
 		correct_values = pd.Series([3, 3, 3, np.nan, 1, 1, 1, 1, 1, 1])
-		assert_series_equal(correct_values, df2['(count) hh by hh'])
+		assert_series_equal(correct_values, myhhkit.df['(count) hh by hh'])
 
 	def test_specify_exclude_yields_correct_results_mean(self):
 		myhhkit = hhkit()
-		df2 = myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include)
+		myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include)
 		correct_values = pd.Series([33.333333, 33.333333, 33.333333, np.nan, 20, 20, 15, 15, 15, 15])
-		assert_series_equal(correct_values, df2['(mean) age by hh'])
+		assert_series_equal(correct_values, myhhkit.df['(mean) age by hh'])
 
 	def test_using_numeric_exclude_type(self):
 		myhhkit = hhkit()
-		df2 = myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include_using_integer)
+		myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include_using_integer)
 		correct_values = pd.Series([33.333333, 33.333333, 33.333333, np.nan, 20, 20, 15, 15, 15, 15])
-		assert_series_equal(correct_values, df2['(mean) age by hh'])
+		assert_series_equal(correct_values, myhhkit.df['(mean) age by hh'])
 
 	def test_using_float_exclude_type(self):
 		myhhkit = hhkit()
-		df2 = myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include_using_float)
+		myhhkit.egen(self.df, operation='mean', groupby='hh', col='age', exclude=self.my_include_using_float)
 		correct_values = pd.Series([33.333333, 33.333333, 33.333333, np.nan, 20, 20, 15, 15, 15, 15])
-		assert_series_equal(correct_values, df2['(mean) age by hh'])
+		assert_series_equal(correct_values, myhhkit.df['(mean) age by hh'])
 
 	def test_using_nonnumeric_exclude_type(self):
 		myhhkit = hhkit()
