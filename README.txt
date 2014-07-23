@@ -274,7 +274,7 @@ Another merge, this one replacing the labels in the original/left/master dataset
 ```
 myhhkit_using_ind = hhkit()
 myhhkit_using_ind.from_dict(df_using_ind)
-myhhkit_using_ind.set_variable_labels({'empl':'Employment status'})
+myhhkit_using_ind.set_variable_labels({'hh':'--> Household ID', 'empl':'Employment status'})
 myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
 print(myhhkit.df)
 print(myhhkit.sdesc())
@@ -308,7 +308,7 @@ Variable             Data Type    Variable Label
 'educ'               object                            
 'fridge'             object                                
 'has_car'            float64                           
-'hh'                 float64      Household ID                             
+'hh'                 float64      --> Household ID                             
 'house_rooms'        float64                               
 'id'                 float64      Member ID                         
 'male'               float64                                 
