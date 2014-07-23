@@ -6,14 +6,21 @@ df_original = pd.read_csv('sample_hh_dataset.csv')
 df = df_original.copy()
 myhhkit = hhkit()
 myhhkit.from_dict(df) 
+myhhkit.set_variable_labels({'age':'Age in years'})
 
 # Try some egen commands
-myhhkit.egen(myhhkit.df, operation='count', groupby='hh', col='hh', column_label='hhsize')
-myhhkit.egen(myhhkit.df, operation='mean', groupby='hh', col='age', column_label='mean age in hh')
-myhhkit.egen(myhhkit.df, operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=df['age']>22)
-myhhkit.egen(myhhkit.df, operation='mean', groupby='hh', col='age')
+print('------------------------------- Some egen commands ---------------------------------')
+myhhkit.egen(myhhkit, operation='count', groupby='hh', col='hh', column_label='hhsize', varlabel='Household size')
+myhhkit.egen(myhhkit, operation='mean', groupby='hh', col='age', column_label='mean age in hh')
+myhhkit.egen(myhhkit, operation='count', groupby='hh', col='hh', column_label='hhs_o22', 
+							include=df['age']>22, varlabel='Household size including only members over 22 years of age')
+myhhkit.egen(myhhkit, operation='mean', groupby='hh', col='age')
+print(myhhkit.variable_labels)
 print(myhhkit.df)
+print(myhhkit.sdesc())
+print('------------------------------- End some egen commands -----------------------------')
 
+print('------------------------------- Some Stata-like merges ---------------------------------')
 # Try some stata-like merges
 df_master = pd.DataFrame(
 	{'educ': {0: 'secondary', 1: 'bachelor', 2: 'primary', 3: 'higher', 4: 'bachelor', 5: 'secondary', 
@@ -40,9 +47,27 @@ df_using_ind = pd.DataFrame(
 	 'id': {0: 1, 1: 2, 2: 4, 3: 1, 4: 1, 5: 2, 6: 1, 7: 2, 8: 5}
      })
 
+print('---- Left/Master dataset ---')
 myhhkit.from_dict(df_master)
+myhhkit.set_variable_labels({'hh':'Household ID','id':'Member ID'})
 print(myhhkit.df)
-myhhkit.statamerge(df_using_hh, on=['hh'], mergevarname='_merge_hh')
+print(myhhkit.sdesc())
+
+print('---- Now merging: ---')
+myhhkit_using_hh = hhkit()
+myhhkit_using_hh.from_dict(df_using_hh)
+myhhkit_using_hh.set_variable_labels({'hh':'--> Household ID','has_fence':'This dwelling has a fence'})
+print('Did the variable labels get added to the right/using dataset?')
+print(myhhkit_using_hh.sdesc())
+myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh', replacelabels=False) 
 print(myhhkit.df)
-myhhkit.statamerge(df_using_ind, on=['hh','id'], mergevarname='_merge_ind')
+print(myhhkit.sdesc())
+
+print('---- Another merge: ---')
+myhhkit_using_ind = hhkit()
+myhhkit_using_ind.from_dict(df_using_ind)
+myhhkit_using_ind.set_variable_labels({'empl':'Employment status'})
+myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
 print(myhhkit.df)
+print(myhhkit.sdesc())
+print('------------------------------- End some Stata-like merges ------------------------------')

@@ -46,7 +46,9 @@ class TestStataMerge(unittest.TestCase):
 		
 		myhhkit = hhkit()
 		myhhkit.from_dict(self.df_master)
-		myhhkit.statamerge(self.df_using_hh, on=['hh'])
+		myhhkit_using_hh = hhkit()
+		myhhkit_using_hh.from_dict(self.df_using_hh)
+		myhhkit.statamerge(myhhkit_using_hh, on=['hh'])
 		list_of_columns = myhhkit.df.columns.values.tolist()
 		self.assertIn('has_fence',list_of_columns)
 
@@ -59,7 +61,9 @@ class TestStataMerge(unittest.TestCase):
 		
 		myhhkit = hhkit()
 		myhhkit.from_dict(self.df_master)
-		myhhkit.statamerge(self.df_using_ind, on=['hh','id'])
+		myhhkit_using_ind = hhkit()
+		myhhkit_using_ind.from_dict(self.df_using_ind)
+		myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'])
 		list_of_columns = myhhkit.df.columns.values.tolist()
 		self.assertIn('empl',list_of_columns)
 
@@ -73,8 +77,10 @@ class TestStataMerge(unittest.TestCase):
 
 		myhhkit = hhkit()
 		myhhkit.from_dict(self.df_master)
+		myhhkit_using_hh = hhkit()
+		myhhkit_using_hh.from_dict(self.df_using_hh)
 		correct_values = pd.Series([1, 1, 1, 3, 1, 1, 3, 3, 3, 3, 2, 2, 2])
-		myhhkit.statamerge(self.df_using_hh, on=['hh'], mergevarname='_merge_hh')
+		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
 		assert_series_equal(correct_values, myhhkit.df['_merge_hh'])
 
 	
@@ -82,8 +88,10 @@ class TestStataMerge(unittest.TestCase):
 		
 		myhhkit = hhkit()
 		myhhkit.from_dict(self.df_master)
+		myhhkit_using_ind = hhkit()
+		myhhkit_using_ind.from_dict(self.df_using_ind)
 		correct_values = pd.Series([3, 3, 1, 3, 1, 1, 3, 3, 1, 1, 2, 2, 2, 2])
-		myhhkit.statamerge(self.df_using_ind, on=['hh','id'], mergevarname='_merge_hh')
+		myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_hh')
 		assert_series_equal(correct_values, myhhkit.df['_merge_hh'])
 
 	

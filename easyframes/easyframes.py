@@ -8,6 +8,13 @@ pd.set_option('expand_frame_repr', False)
 
 class hhkit(pd.DataFrame):
 
+	# def __init__(self, *args, **kwargs):
+	#	pass
+		#self.variable_labels = {}
+		#self.value_labels = {}
+		#self.df = None
+		#pd.DataFrame.__init__(self, *args, **kwargs)
+
 	def _is_numeric(self, obj): 
 		for element in obj:
 			try: 
@@ -25,9 +32,27 @@ class hhkit(pd.DataFrame):
 			new_list += [temp_new_list_item]
 		return new_list
 
+	def _initialize_variable_labels(self):
+		# make sure variable_labels exists
+		try: self.variable_labels
+		except: self.variable_labels = {}
+		# make sure each column has a variable label
+		for var in self.df.columns.values:
+			# check if var is already in the list of variable labels
+			if var not in self.variable_labels:
+				self.variable_labels[var] = ''
+		return self.variable_labels
+
+	def set_variable_labels(self, varlabeldict={}):
+		self._initialize_variable_labels()
+		for var in varlabeldict:
+			self.variable_labels[var] = varlabeldict[var]
+		return self.variable_labels
+
 	# Here is a 'count' method for calculating household size
-	def egen(self, df, operation, groupby, col, column_label='', include=None, exclude=None):
+	def egen(self, obj, operation, groupby, col, column_label='', include=None, exclude=None, varlabel=''):
 		using_excl = False
+		df=obj.df
 		if (include is None) and (exclude is None):
 			# Make an array or data series same length as df with all entries true - all rows are included
 			include = pd.Series([True]*df.shape[0])
@@ -60,34 +85,44 @@ class hhkit(pd.DataFrame):
 		result.rename(columns={operation:column_label}, inplace=True)
 		merged = pd.merge(df, result, left_on=groupby, right_index=True, how='left')
 		self.df = merged
+		self.set_variable_labels(varlabeldict={column_label:varlabel,})
 		return merged
 
 	def read_stata(self, *args, **kwargs):
 		reader = StataReader(*args, **kwargs)
 		self.df = reader.data()
 		self.variable_labels = reader.variable_labels()
+		self._initialize_variable_labels()
 		self.value_labels = reader.value_labels()
 		# self.data_label = reader.data_label()
 		return self.df
 
-	def sdesc(self, varlist=None, varnamewidth=15, vartypewidth=10, varlabelwidth=70):
+	def sdesc(self, varlist=None, varnamewidth=20, vartypewidth=10, varlabelwidth=70, borderwidthinchars=100):
 		if varlist is None:
 			list_of_vars = self.df.columns.values
 		else:
 			list_of_vars = varlist
+		print('-'*borderwidthinchars)
 		print('obs: %d' % self.df.shape[0])
 		print('vars: %d' % len(list_of_vars))
-		print('--------'.ljust(varnamewidth), '---------'.ljust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
+		print('-'*borderwidthinchars)
+		# print('--------'.ljust(varnamewidth), '---------'.ljust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
 		print('Variable'.ljust(varnamewidth), 'Data Type'.ljust(vartypewidth), ' ', 'Variable Label'.ljust(varlabelwidth), end='\n')
-		print('--------'.ljust(varnamewidth), '---------'.ljust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
+		print('-'*borderwidthinchars)
+		# print('--------'.ljust(varnamewidth), '---------'.ljust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
 		for x in list_of_vars:
 			print(repr(x).ljust(varnamewidth), str(self.df[x].dtype).ljust(vartypewidth), ' ', self.variable_labels[x].ljust(varlabelwidth), end='\n')
 	
 	def from_dict(self, *args, **kwargs):
 		self.df = pd.DataFrame(*args, **kwargs)
+		self.variable_labels = {}
+		self.value_labels = {}
 		return self.df
 
-	def statamerge(self, df_using_right, on, how='outer', mergevarname='_m'):
+	def statamerge(self, obj, on, how='outer', mergevarname='_m', replacelabels=True):
+		df_using_right = obj.df
+
+		# create a unique key based on the 'on' list
 		dfon_left_master = [self.df[x] for x in on] 
 		dfon_left_master2 = []
 		for dfx in dfon_left_master:
@@ -116,6 +151,24 @@ class hhkit(pd.DataFrame):
 		self.df[mergevarname][self.df[mergevarname] == 0 ] = 3
 		del self.df['_left_merge_key']
 		del self.df['_right_merge_key']
-		# create a unique key based on the 'on' list
+
+		# How about the variable labels?
+		variable_labels_to_add_to_merged_dataset_dict = {}
+		try: 
+			obj.variable_labels
+		except: 
+			obj.variable_labels = {}
+		if (replacelabels): # replace the variable lables with those in the right/using dataset
+			for var in obj.variable_labels:
+				if (not obj.variable_labels[var]==""):
+					variable_labels_to_add_to_merged_dataset_dict[var]=obj.variable_labels[var]
+		else: # don't replace the variable lables with those in the right/using dataset, just add variable labels
+			  #		for variables that are not already in the left/master dataset
+			for var in obj.variable_labels:
+				if var not in self.variable_labels:
+					variable_labels_to_add_to_merged_dataset_dict[var]=obj.variable_labels[var]
+		self.set_variable_labels(variable_labels_to_add_to_merged_dataset_dict)
+		self._initialize_variable_labels()
+
 		return self.df
 
