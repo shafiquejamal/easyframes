@@ -35,9 +35,7 @@ Using this package, the command would be:
 ```
 from easyframes.easyframes import hhkit
 
-myhhkit = hhkit()
-df_original = pd.read_csv('sample_hh_dataset.csv')
-myhhkit.from_dict(df_original) # From dict will work on a dataframe too.
+myhhkit = hhkit('sample_hh_dataset.csv')
 myhhkit.egen(myhhkit, operation='count', groupby='hh', col='hh', column_label='hhsize')
 ```
 
@@ -159,10 +157,7 @@ Variable             Data Type    Variable Label
 ```
 You can even specify a variable label when using egen:
 ```
-df_original = pd.read_csv('sample_hh_dataset.csv')
-df = df_original.copy()
-myhhkit = hhkit()
-myhhkit.from_dict(df) 
+myhhkit = hhkit('sample_hh_dataset.csv')
 myhhkit.set_variable_labels({'age':'Age in years'})
 myhhkit.egen(myhhkit, operation='count', groupby='hh', col='hh', column_label='hhs_o22', 
 	include=df['age']>22, varlabel='Household size including only members over 22 years of age')
@@ -225,12 +220,12 @@ df_using_ind = pd.DataFrame(
 	 'hh': {0: 1, 1: 1, 2: 1, 3: 2, 4: 5, 5: 5, 6: 4, 7: 4, 8: 4},  
 	 'id': {0: 1, 1: 2, 2: 4, 3: 1, 4: 1, 5: 2, 6: 1, 7: 2, 8: 5}
      })
-myhhkit.from_dict(df_master)
+myhhkit.from_dict(df_master) # If the object already exists, you can replace the existing dataframe. You 
+							 # 	can pass a data frame or a dict to the from_dict() method.
 myhhkit.set_variable_labels({'hh':'Household ID','id':'Member ID'})
 
 # Now merge:
-myhhkit_using_hh = hhkit()
-myhhkit_using_hh.from_dict(df_using_hh)
+myhhkit_using_hh = hhkit(df_using_hh)
 myhhkit_using_hh.set_variable_labels({'hh':'--> Household ID','has_fence':'This dwelling has a fence'})
 myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh', replacelabels=False) 
 print(myhhkit.df)
@@ -272,8 +267,7 @@ Variable             Data Type    Variable Label
 ```
 Another merge, this one replacing the labels in the original/left/master dataset:
 ```
-myhhkit_using_ind = hhkit()
-myhhkit_using_ind.from_dict(df_using_ind)
+myhhkit_using_ind = hhkit(df_using_ind)
 myhhkit_using_ind.set_variable_labels({'hh':'--> Household ID', 'empl':'Employment status'})
 myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
 print(myhhkit.df)
