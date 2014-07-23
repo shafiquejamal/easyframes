@@ -1,4 +1,5 @@
 from numbers import Number
+import re
 
 import pandas as pd
 from pandas.io.stata import StataReader
@@ -6,14 +7,25 @@ import numpy as np
 
 pd.set_option('expand_frame_repr', False)
 
-class hhkit(pd.DataFrame):
+class hhkit(object):
 
-	# def __init__(self, *args, **kwargs):
-	#	pass
-		#self.variable_labels = {}
-		#self.value_labels = {}
-		#self.df = None
-		#pd.DataFrame.__init__(self, *args, **kwargs)
+	def __init__(self, *args, **kwargs):
+		# if input data frame is specified as a stata data file or text file
+		if len(args) > 0:
+			compiled_pattern_dta = re.compile(r'\.(?P<extension>.{3})$')
+			p = re.search(compiled_pattern_dta,str(args[0]))
+			if p is not None:
+				if (p.group('extension').lower() == "dta"):
+					self.read_stata(*args, **kwargs)
+				elif (p.group('extension').lower() == "csv" or p.group('extension').lower() == "txt"):
+					self.df = pd.read_csv('sample_hh_dataset.csv')
+					self._initialize_variable_labels()
+				else:
+					pass
+					# print('Unrecognized file type: %s' % p.group('extension'))
+			else:
+				if isinstance(args[0], pd.DataFrame):
+					self.from_dict(args[0])
 
 	def _is_numeric(self, obj): 
 		for element in obj:

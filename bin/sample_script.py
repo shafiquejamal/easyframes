@@ -4,8 +4,7 @@ from easyframes.easyframes import hhkit
 # Load a sample dataset, available on the github page for this package
 df_original = pd.read_csv('sample_hh_dataset.csv')
 df = df_original.copy()
-myhhkit = hhkit()
-myhhkit.from_dict(df) 
+myhhkit = hhkit('sample_hh_dataset.csv')
 myhhkit.set_variable_labels({'age':'Age in years'})
 
 # Try some egen commands
@@ -53,16 +52,16 @@ print(myhhkit.df)
 print(myhhkit.sdesc())
 
 print('---- Now merging: ---')
-myhhkit_using_hh = hhkit()
-myhhkit_using_hh.from_dict(df_using_hh)
+myhhkit_using_hh = hhkit(df_using_hh)
+# myhhkit_using_hh.from_dict(df_using_hh)
 myhhkit_using_hh.set_variable_labels({'hh':'--> Household ID','has_fence':'This dwelling has a fence'})
 myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh', replacelabels=False) 
 print(myhhkit.df)
 print(myhhkit.sdesc())
 
 print('---- Another merge: ---')
-myhhkit_using_ind = hhkit()
-myhhkit_using_ind.from_dict(df_using_ind)
+myhhkit_using_ind = hhkit(df_using_ind)
+# myhhkit_using_ind.from_dict(df_using_ind)
 myhhkit_using_ind.set_variable_labels({'hh':'--> Household ID', 'empl':'Employment status'})
 myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
 print(myhhkit.df)

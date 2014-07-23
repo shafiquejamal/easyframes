@@ -44,10 +44,10 @@ class TestStataMerge(unittest.TestCase):
 	# @unittest.skip("demonstrating skipping")
 	def test_new_columns_added_merging_hh_level(self):
 		
-		myhhkit = hhkit()
-		myhhkit.from_dict(self.df_master)
-		myhhkit_using_hh = hhkit()
-		myhhkit_using_hh.from_dict(self.df_using_hh)
+		myhhkit = hhkit(self.df_master)
+		# myhhkit.from_dict(self.df_master)
+		myhhkit_using_hh = hhkit(self.df_using_hh)
+		# myhhkit_using_hh.from_dict(self.df_using_hh)
 		myhhkit.statamerge(myhhkit_using_hh, on=['hh'])
 		list_of_columns = myhhkit.df.columns.values.tolist()
 		self.assertIn('has_fence',list_of_columns)
@@ -59,10 +59,10 @@ class TestStataMerge(unittest.TestCase):
 	# @unittest.skip("demonstrating skipping")
 	def test_new_columns_added_merging_ind_level(self):
 		
-		myhhkit = hhkit()
-		myhhkit.from_dict(self.df_master)
-		myhhkit_using_ind = hhkit()
-		myhhkit_using_ind.from_dict(self.df_using_ind)
+		myhhkit = hhkit(self.df_master)
+		# myhhkit.from_dict(self.df_master)
+		myhhkit_using_ind = hhkit(self.df_using_ind)
+		# myhhkit_using_ind.from_dict(self.df_using_ind)
 		myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'])
 		list_of_columns = myhhkit.df.columns.values.tolist()
 		self.assertIn('empl',list_of_columns)
@@ -75,10 +75,10 @@ class TestStataMerge(unittest.TestCase):
 	# @unittest.skip("demonstrating skipping")
 	def test_check_proper_merged_variable_created_and_is_correct_hh_level(self):
 
-		myhhkit = hhkit()
-		myhhkit.from_dict(self.df_master)
-		myhhkit_using_hh = hhkit()
-		myhhkit_using_hh.from_dict(self.df_using_hh)
+		myhhkit = hhkit(self.df_master)
+		# myhhkit.from_dict(self.df_master)
+		myhhkit_using_hh = hhkit(self.df_using_hh)
+		# myhhkit_using_hh.from_dict(self.df_using_hh)
 		correct_values = pd.Series([1, 1, 1, 3, 1, 1, 3, 3, 3, 3, 2, 2, 2])
 		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
 		assert_series_equal(correct_values, myhhkit.df['_merge_hh'])
@@ -86,10 +86,10 @@ class TestStataMerge(unittest.TestCase):
 	
 	def test_check_proper_merged_variable_created_and_is_correct_ind_level(self):
 		
-		myhhkit = hhkit()
-		myhhkit.from_dict(self.df_master)
-		myhhkit_using_ind = hhkit()
-		myhhkit_using_ind.from_dict(self.df_using_ind)
+		myhhkit = hhkit(self.df_master)
+		# myhhkit.from_dict(self.df_master)
+		myhhkit_using_ind = hhkit(self.df_using_ind)
+		# myhhkit_using_ind.from_dict(self.df_using_ind)
 		correct_values = pd.Series([3, 3, 1, 3, 1, 1, 3, 3, 1, 1, 2, 2, 2, 2])
 		myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_hh')
 		assert_series_equal(correct_values, myhhkit.df['_merge_hh'])
