@@ -313,3 +313,7 @@ Variable             Data Type    Variable Label
 'empl'               object       Employment status                           
 '_merge_ind'         int64  
 ```
+If you want to load in a Stata data file (.dta), try something like this:
+```
+myhhkit = hhkit('mydataset.dta', encoding="latin-1")
+```
