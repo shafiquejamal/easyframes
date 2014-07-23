@@ -10,3 +10,4 @@ easyframes/__init__.py
 easyframes/easyframes.py
 easyframes/test/__init__.py
 easyframes/test/test_egen.py
+easyframes/test/test_statamerge.py
