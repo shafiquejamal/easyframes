@@ -3,3 +3,4 @@ v0.1.1, 07-20-2014 -- Minor changes to resolve sys path issues.
 v0.1.2, 07-21-2014 -- Improved the method for checking for numeric include/exclude, added equivalent of Stata 'describe' command. Also made the hhkit a subclass of Pandas DataFrame, allowing it to store and change a DataFrame object.
 v0.1.3, 07-22-2014 -- Added support for variable labels. Changed syntax for calling statamerge and egen (pass objects instead of dataframes)
 v0.1.4, 07-23-2014 -- Can load the data from stata file, text file or dataframe directly when instantiating the hhkit object
+v0.1.5, 07-24-2014 -- Now support for stata-like one-way and two-way tabulations. No filtering or weights in the tabs yet.

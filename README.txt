@@ -1,5 +1,6 @@
 # EasyFrames
 
+
 ## Summary
 
 This package makes it easier to perform some basic operations using a Pandas dataframe. For example, suppose you have the following dataset:
@@ -316,4 +317,79 @@ Variable             Data Type    Variable Label
 If you want to load in a Stata data file (.dta), try something like this:
 ```
 myhhkit = hhkit('mydataset.dta', encoding="latin-1")
+```
+## What about Stata-like tabulations and cross-tabulations?
+
+No problem:
+```
+myhhkit = hhkit(self.df_master)
+myhhkit_using_hh = hhkit(self.df_using_hh)
+myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
+myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
+df_tab = myhhkit.tab('_merge_hh', p=True)
+```
+```
+           count    percent
+_merge_hh                  
+1              5  38.461538
+2              3  23.076923
+3              5  38.461538
+```
+```
+df_tab = myhhkit.tab('educ', p=True)
+```
+```
+      count    percent
+educ                  
+bach      2  15.384615
+hi        3  23.076923
+pri       4  30.769231
+sec       1   7.692308
+nan       3  23.076923
+```
+```
+df_tab = myhhkit.tab('educ', p=True, usevarlabels=True)
+```
+```
+                 count    percent
+Education level                  
+bach                 2  15.384615
+hi                   3  23.076923
+pri                  4  30.769231
+sec                  1   7.692308
+nan                  3  23.076923
+```
+How about two-way tabulations?
+```
+myhhkit = hhkit(self.df_master)
+myhhkit_using_ind = hhkit(self.df_using_ind)
+myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
+myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
+
+df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, usevarlabels=[False, False], p=True)
+```
+```
+Statistic    count                  row percent                   column percent            cell percent                               
+prov       Alberta  BC  nan  total      Alberta   BC  nan  total         Alberta   BC  nan       Alberta        BC       nan      total
+educ                                                                                                                                   
+bach             0   2    0      2            0  100    0    100               0   40  NaN       0.00000  14.28571   0.00000   14.28571
+hi               3   0    0      3          100    0    0    100              60    0  NaN      21.42857   0.00000   0.00000   21.42857
+pri              2   2    0      4           50   50    0    100              40   40  NaN      14.28571  14.28571   0.00000   28.57143
+sec              0   1    0      1            0  100    0    100               0   20  NaN       0.00000   7.14286   0.00000    7.14286
+nan              0   0    4      4            0    0  100    100               0    0  NaN       0.00000   0.00000  28.57143   28.57143
+total            5   5    4     14          NaN  NaN  NaN    NaN             100  100  NaN      35.71429  35.71429  28.57143  100.00000
+```
+```
+df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, p=True)
+```
+```
+Statistic          count                  row percent                   column percent            cell percent                               
+Province         Alberta  BC  nan  total      Alberta   BC  nan  total         Alberta   BC  nan       Alberta        BC       nan      total
+Education level                                                                                                                              
+bach                   0   2    0      2            0  100    0    100               0   40  NaN       0.00000  14.28571   0.00000   14.28571
+hi                     3   0    0      3          100    0    0    100              60    0  NaN      21.42857   0.00000   0.00000   21.42857
+pri                    2   2    0      4           50   50    0    100              40   40  NaN      14.28571  14.28571   0.00000   28.57143
+sec                    0   1    0      1            0  100    0    100               0   20  NaN       0.00000   7.14286   0.00000    7.14286
+nan                    0   0    4      4            0    0  100    100               0    0  NaN       0.00000   0.00000  28.57143   28.57143
+total                  5   5    4     14          NaN  NaN  NaN    NaN             100  100  NaN      35.71429  35.71429  28.57143  100.00000
 ```

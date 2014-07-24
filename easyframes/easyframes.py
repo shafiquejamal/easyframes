@@ -1,4 +1,5 @@
 from numbers import Number
+from collections import Iterable
 import re
 
 import pandas as pd
@@ -188,3 +189,125 @@ class hhkit(object):
 
 		return self.df
 
+	def tab(self, columns, shownan=False, p=True, includenan=True, includenanrows=True, 
+				includenancols=True, dropna=False, decimalplaces=5, usevarlabels=[True, True]):
+		
+		if (isinstance(columns, str) or (isinstance(columns, Iterable) and len(columns)==1)): 
+		# One way tabulation - tabulation of one variable
+			if (isinstance(columns, str)):
+				column = columns
+			else:
+				column = columns[0]
+			self.df['_deleteme'] = 1
+			if (includenan):
+				table = pd.crosstab(columns=self.df[column].astype(str), index=self.df['_deleteme'], dropna=dropna)
+			else:
+				table = pd.crosstab(columns=self.df[column], index=self.df['_deleteme'], dropna=dropna)
+			table1 = pd.DataFrame(table.sum(axis=0))
+			table1.index.names = [column]
+			table1.columns = ['count']
+			table1['percent'] = 100*table1['count']/table1['count'].sum()
+			del self.df['_deleteme']
+			
+			# make sure the 'nan' is at the bottom, if it is there at all
+			if ('nan' in table1.index):
+				table1 = pd.concat([table1[table1.index != 'nan'], table1[table1.index == 'nan']])
+
+			# use variable labels?
+			if (isinstance(usevarlabels, bool)):
+				if (usevarlabels == True):
+					table1.index.name = self.variable_labels[column]
+
+			if (p):
+				print(table1)
+			return table1
+		elif (isinstance(columns, Iterable)):
+			if (includenanrows and includenancols):
+				table = pd.crosstab(self.df[columns[0]].astype(str), self.df[columns[1]].astype(str), dropna=dropna)
+			elif (includenanrows and not includenancols):
+				table = pd.crosstab(self.df[columns[0]].astype(str), self.df[columns[1]], dropna=dropna)
+			elif (not includenanrows and includenancols):
+				table = pd.crosstab(self.df[columns[0]], self.df[columns[1]].astype(str), dropna=dropna)
+			else:
+				table = pd.crosstab(self.df[columns[0]], self.df[columns[1]], dropna=dropna)
+			# Add a heirarchical index
+			table1 = table.copy()
+			list_of_columns_values = []
+			for c in table.columns.values:
+				list_of_columns_values += [c]
+			# table1.columns = [['count','count'],[table.columns.values[0],table.columns.values[1]]]
+			table1.columns = [['count']*len(list_of_columns_values), list_of_columns_values]
+
+			# Get row total
+			table1['count','total'] = 0
+			for c in table.columns.values:
+				table1['count','total'] += table1.xs(('count',c), axis=1)
+
+			# Get row percentages
+			for c in table.columns.values:	
+				table1['row percent',c] \
+			 	 = 100*table1.xs(('count',c), axis=1) / table1.xs(('count','total'), axis=1)
+
+			table1['row percent','total'] = 0
+			for c in table.columns.values:
+				table1['row percent','total'] += table1.xs(('row percent',c), axis=1)
+			
+			# Get column percentages
+			for c in table.columns.values:
+				if (c != 'nan'):
+					table1['column percent',c] = 100*table1.xs(('count',c), axis=1) \
+				                             /table1.xs(('count',c), axis=1).sum()
+				else:
+					table1['column percent',c] = np.nan
+
+			# Get cell percentages
+			for c in table.columns.values:
+				table1['cell percent',c] = 100*table1.xs(('count',c), axis=1) \
+				                             /table1.xs(('count','total'), axis=1).sum()
+			
+			table1['cell percent','total'] = 0
+			for c in table.columns.values:
+				table1['cell percent','total'] += table1.xs(('cell percent',c), axis=1)
+
+			# move the nans to the end
+			if ('nan' in table1.index):
+				table1 = pd.concat([table1[table1.index != 'nan'], table1[table1.index == 'nan']])
+			dfs_to_concat = []
+			for c_upper in ['count','row percent','column percent','cell percent']:
+				for c_lower in table.columns.values:
+					if (c_lower != 'nan' and c_lower != 'total'):
+						dfs_to_concat += [table1[c_upper, c_lower]]
+				dfs_to_concat += [table1[c_upper, 'nan']]
+				if (c_upper != 'column percent'):
+					dfs_to_concat += [table1[c_upper, 'total']]
+			table1 = pd.concat(dfs_to_concat, axis=1)
+
+			# Add sensible column names, and add a row of grand totals at the bottom
+			table1.columns.names = ['Statistic',columns[1]]
+			entries_for_total_row = []
+			for c in table1.columns.values:
+				if (c[0] != 'row percent'):
+					entries_for_total_row += [table1[c].sum()]
+				else:
+					entries_for_total_row += [np.nan]
+			table1.loc['total'] = entries_for_total_row
+
+			table1['row percent','total'] = table1['row percent','total'].apply(np.round, decimals=decimalplaces)
+			table1['cell percent','total'] = table1['cell percent','total'].apply(np.round, decimals=decimalplaces)
+			for c in table.columns.values:
+				table1['row percent',c] = table1['row percent',c].apply(np.round, decimals=decimalplaces)
+				table1['column percent',c] = table1['column percent',c].apply(np.round, decimals=decimalplaces)
+				table1['cell percent',c] = table1['cell percent',c].apply(np.round, decimals=decimalplaces)
+
+			# Use variable labels?
+			if ((usevarlabels is not None) and (len(usevarlabels)==2)):
+				if (usevarlabels[0] == True):
+					table1.index.name = self.variable_labels[columns[0]]
+				if (usevarlabels[1] == True):
+					table1.columns.names = [table1.columns.names[0],self.variable_labels[columns[1]]]
+			if (p):
+				print(table1)
+			return table1
+
+		else:
+			return False
