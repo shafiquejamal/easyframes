@@ -329,35 +329,38 @@ myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
 df_tab = myhhkit.tab('_merge_hh', p=True)
 ```
 ```
-           count    percent
-_merge_hh                  
-1              5  38.461538
-2              3  23.076923
-3              5  38.461538
+           count     percent
+_merge_hh                   
+1              5   38.461538
+2              3   23.076923
+3              5   38.461538
+total         13  100.000000
 ```
 ```
 df_tab = myhhkit.tab('educ', p=True)
 ```
 ```
-      count    percent
-educ                  
-bach      2  15.384615
-hi        3  23.076923
-pri       4  30.769231
-sec       1   7.692308
-nan       3  23.076923
+       count     percent
+educ                    
+bach       2   15.384615
+hi         3   23.076923
+pri        4   30.769231
+sec        1    7.692308
+nan        3   23.076923
+total     13  100.000000
 ```
 ```
 df_tab = myhhkit.tab('educ', p=True, usevarlabels=True)
 ```
 ```
-                 count    percent
-Education level                  
-bach                 2  15.384615
-hi                   3  23.076923
-pri                  4  30.769231
-sec                  1   7.692308
-nan                  3  23.076923
+                 count     percent
+Education level                   
+bach                 2   15.384615
+hi                   3   23.076923
+pri                  4   30.769231
+sec                  1    7.692308
+nan                  3   23.076923
+total               13  100.000000
 ```
 How about two-way tabulations?
 ```

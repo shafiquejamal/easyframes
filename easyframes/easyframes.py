@@ -218,6 +218,9 @@ class hhkit(object):
 				if (usevarlabels == True):
 					table1.index.name = self.variable_labels[column]
 
+			# Add a row with totals
+			table1.loc['total'] = [table1['count'].sum(), table1['percent'].sum()]
+
 			if (p):
 				print(table1)
 			return table1

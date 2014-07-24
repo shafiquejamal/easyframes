@@ -40,40 +40,39 @@ class TestStataMerge(unittest.TestCase):
 			 'id': {0: 1, 1: 2, 2: 4, 3: 1, 4: 1, 5: 2, 6: 1, 7: 2, 8: 5}
              })
 
-	@unittest.skip("demonstrating skipping")
+	# @unittest.skip("demonstrating skipping")
 	def test_taboneway_gives_correct_tabulations_for_merge_no_weights_no_nans_hh(self):
 
 		myhhkit = hhkit(self.df_master)
 		myhhkit_using_hh = hhkit(self.df_using_hh)
-		correct_values_taboneway_of_merge_count = pd.Series([5, 3, 5], index=['1','2','3'])
-		correct_values_taboneway_of_merge_percent = pd.Series([5/13, 3/13, 5/13], index=['1','2','3'])
+		correct_values_taboneway_of_merge_count = pd.Series([5, 3, 5, 13], index=['1','2','3', 'total']).astype(float)
+		correct_values_taboneway_of_merge_percent = pd.Series([100*5/13, 100*3/13, 100*5/13, 100*13/13], index=['1','2','3','total'])
 		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
 		df_tab = myhhkit.tab('_merge_hh', p=False)
 
 		assert_series_equal(correct_values_taboneway_of_merge_count, df_tab['count'])
 		assert_series_equal(correct_values_taboneway_of_merge_percent, df_tab['percent'])
 
-	@unittest.skip("demonstrating skipping")
+	# @unittest.skip("demonstrating skipping")
 	def test_taboneway_gives_correct_tabulations_for_varswithnan_no_weights(self):
 
 		myhhkit = hhkit(self.df_master)
 		myhhkit_using_hh = hhkit(self.df_using_hh)
-		correct_values_taboneway_of_merge_count = pd.Series([2, 3, 4, 1, 3], 
-					index=['bach','hi','pri','sec', 'nan'])
-		correct_values_taboneway_of_merge_percent = pd.Series([100*2/13, 100*3/13, 100*4/13, 100*1/13, 100*3/13], 
-					index=['bach','hi','pri','sec', 'nan'])
+		correct_values_taboneway_of_merge_count = pd.Series([2, 3, 4, 1, 3, 13], 
+					index=['bach','hi','pri','sec', 'nan', 'total']).astype(float)
+		correct_values_taboneway_of_merge_percent = pd.Series([100*2/13, 100*3/13, 100*4/13, 100*1/13, 100*3/13, 100], 
+					index=['bach','hi','pri','sec', 'nan', 'total'])
 		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
 
 		myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
-		df_tab = myhhkit.tab('educ', p=False, usevarlabels=True)
+		print(' ')
+		df_tab = myhhkit.tab('educ', p=True, usevarlabels=True)
 		assert_series_equal(correct_values_taboneway_of_merge_count, df_tab['count'])
 		assert_series_equal(correct_values_taboneway_of_merge_percent, df_tab['percent'])
-
-		df_tab = myhhkit.tab(['educ'], p=False)
+		print(' ')
+		df_tab = myhhkit.tab(['educ'], p=True)
 		assert_series_equal(correct_values_taboneway_of_merge_count, df_tab['count'])
 		assert_series_equal(correct_values_taboneway_of_merge_percent, df_tab['percent'])
-
-
 
 	# @unittest.skip("demonstrating skipping")
 	def test_tabtwoway_withnans(self):
