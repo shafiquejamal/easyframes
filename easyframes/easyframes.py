@@ -196,30 +196,49 @@ class hhkit(object):
 
 	def tab(self, columns, shownan=False, p=True, includenan=True, includenanrows=True, 
 				includenancols=True, dropna=False, decimalplaces=5, usevarlabels=[True, True],
-				include=None, exclude=None):
+				include=None, exclude=None, weightcolumn=None):
 		
 		include = self._make_include_exclude_series(self.df, include, exclude)
+		df = self.df[include]
+
+		if (weightcolumn is None):
+			df['_w'] = pd.Series([1]*df.shape[0]) # remember to delete this column
+		else:
+			df['_w'] = df[weightcolumn] # remember to delete this column
 
 		if (isinstance(columns, str) or (isinstance(columns, Iterable) and len(columns)==1)): 
 		# One way tabulation - tabulation of one variable
+
 			if (isinstance(columns, str)):
 				column = columns
 			else:
 				column = columns[0]
-			self.df['_deleteme'] = 1
+			df['_deleteme'] = 1
 			if (includenan):
-				table = pd.crosstab(columns=self.df[column][include].astype(str), index=self.df['_deleteme'][include], dropna=dropna)
+				table = pd.crosstab(columns=df[column].astype(str), index=df['_deleteme'], dropna=dropna)
 			else:
-				table = pd.crosstab(columns=self.df[column][include], index=self.df['_deleteme'][include], dropna=dropna)
+				table = pd.crosstab(columns=df[column], index=df['_deleteme'], dropna=dropna)
 			table1 = pd.DataFrame(table.sum(axis=0))
 			table1.index.names = [column]
 			table1.columns = ['count']
-			table1['percent'] = 100*table1['count']/table1['count'].sum()
-			del self.df['_deleteme']
+			del df['_deleteme']
+			
+			# account for weights
+			df['_'+column] = df[column].astype(str)
+			w_by_col = df.groupby('_'+column)['_w'].agg('sum')
+			# w_by_col.index = w_by_col.index.astype(str) #yes, this is quite likely redundant
 			
 			# make sure the 'nan' is at the bottom, if it is there at all
 			if ('nan' in table1.index):
 				table1 = pd.concat([table1[table1.index != 'nan'], table1[table1.index == 'nan']])
+			if ('nan' in w_by_col.index):
+				w_by_col = pd.concat([w_by_col[w_by_col.index != 'nan'], w_by_col[w_by_col.index == 'nan']])
+
+			norm_w_by_col = w_by_col/w_by_col.sum()
+			sum_of_counts = table1['count'].sum()
+						
+			table1['count']=norm_w_by_col*sum_of_counts
+			table1['percent'] = 100*table1['count']/table1['count'].sum()
 
 			# use variable labels?
 			if (isinstance(usevarlabels, bool)):

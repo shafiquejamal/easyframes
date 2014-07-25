@@ -73,6 +73,42 @@ class TestTab(unittest.TestCase):
 		assert_series_equal(correct_values_taboneway_of_merge_count, df_tab['count'])
 		assert_series_equal(correct_values_taboneway_of_merge_percent, df_tab['percent'])
 
+	#@unittest.skip("demonstrating skipping")
+	def test_taboneway_gives_correct_tabulations_for_varswithnan_with_weights(self):
+
+		myhhkit = hhkit(self.df_master)
+		myhhkit_using_hh = hhkit(self.df_using_hh)
+		correct_values_taboneway_of_merge_count_with_w = pd.Series(
+					[1.857143, 4.178571, 4.642857, 0.928571, 1.392857, 13], 
+					index=['bach','hi','pri','sec', 'nan', 'total']).astype(float)
+		correct_values_taboneway_of_merge_percent_with_w = pd.Series(
+					[14.285714, 32.142857, 35.714286, 7.142857, 10.714286, 100], 
+					index=['bach','hi','pri','sec', 'nan', 'total'])
+		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
+		myhhkit.df.loc[myhhkit.df['weighthh'].isnull(), ['weighthh']] = 1
+
+		df_tab = myhhkit.tab(['educ'], p=False, weightcolumn='weighthh') 
+		assert_series_equal(correct_values_taboneway_of_merge_count_with_w, df_tab['count'])
+		assert_series_equal(correct_values_taboneway_of_merge_percent_with_w, df_tab['percent'])
+
+	# @unittest.skip("demonstrating skipping")
+	def test_taboneway_gives_correct_tabulations_for_varswithnan_with_weights_with_include(self):
+
+		myhhkit = hhkit(self.df_master)
+		myhhkit_using_hh = hhkit(self.df_using_hh)
+		correct_values_taboneway_of_merge_count_with_w = pd.Series(
+					[1.6, 3.6, 0.8, 6], 
+					index=['bach','hi','pri','total']).astype(float)
+		correct_values_taboneway_of_merge_percent_with_w = pd.Series(
+					[26.666667, 60, 13.333333, 100], 
+					index=['bach','hi','pri','total'])
+		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
+		myhhkit.df.loc[myhhkit.df['weighthh'].isnull(), ['weighthh']] = 1
+
+		df_tab = myhhkit.tab(['educ'], p=False, weightcolumn='weighthh', include=myhhkit.df['age']>20) 
+		assert_series_equal(correct_values_taboneway_of_merge_count_with_w, df_tab['count'])
+		assert_series_equal(correct_values_taboneway_of_merge_percent_with_w, df_tab['percent'])
+
 	# @unittest.skip("demonstrating skipping")
 	def test_tabtwoway_withnans(self):
 		
@@ -114,8 +150,6 @@ class TestTab(unittest.TestCase):
 		# df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, usevarlabels=[True, True], p=True)
 		df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, usevarlabels=[True, True], 
 			include=myhhkit.df['age']>20, p=False)
-		print(myhhkit.df[myhhkit.df['age']>20])
-		print(df_tab)
 
 		assert_series_equal(cv_alberta,df_tab['cell percent','Alberta'])
 		assert_series_equal(cv_bc,df_tab['cell percent','BC'])
