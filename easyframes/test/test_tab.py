@@ -6,7 +6,7 @@ import numpy as np
 
 from easyframes.easyframes import hhkit
 
-class TestStataMerge(unittest.TestCase):
+class TestTab(unittest.TestCase):
 
 	def setUp(self):
 
@@ -65,12 +65,11 @@ class TestStataMerge(unittest.TestCase):
 		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh')
 
 		myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
-		print(' ')
-		df_tab = myhhkit.tab('educ', p=True, usevarlabels=True)
+		df_tab = myhhkit.tab('educ', p=False, usevarlabels=True)
 		assert_series_equal(correct_values_taboneway_of_merge_count, df_tab['count'])
 		assert_series_equal(correct_values_taboneway_of_merge_percent, df_tab['percent'])
-		print(' ')
-		df_tab = myhhkit.tab(['educ'], p=True)
+
+		df_tab = myhhkit.tab(['educ'], p=False)
 		assert_series_equal(correct_values_taboneway_of_merge_count, df_tab['count'])
 		assert_series_equal(correct_values_taboneway_of_merge_percent, df_tab['percent'])
 
@@ -79,11 +78,14 @@ class TestStataMerge(unittest.TestCase):
 		
 		myhhkit = hhkit(self.df_master)
 		myhhkit_using_ind = hhkit(self.df_using_ind)
-		cv_alberta  = pd.Series([0, 21.42857, 14.28571, 0, 0, 35.71429], index=['bach','hi','pri','sec','nan','total'])
-		cv_bc  = pd.Series([14.28571, 0, 14.28571, 7.14286, 0, 35.71429], index=['bach','hi','pri','sec','nan','total'])
-		cv_nan  = pd.Series([0, 0, 0, 0, 28.57143, 28.57143], index=['bach','hi','pri','sec','nan','total'])
+		cv_alberta  = pd.Series([0, 21.42857, 14.28571, 0, 0, 35.71429], 
+			index=['bach','hi','pri','sec','nan','total']).astype(float)
+		cv_bc  = pd.Series([14.28571, 0, 14.28571, 7.14286, 0, 35.71429], 
+			index=['bach','hi','pri','sec','nan','total']).astype(float)
+		cv_nan  = pd.Series([0, 0, 0, 0, 28.57143, 28.57143], 
+			index=['bach','hi','pri','sec','nan','total']).astype(float)
 		cv_total  = pd.Series([14.28571, 21.42857, 28.57143, 7.14286, 28.57143, 100], 
-				index=['bach','hi','pri','sec','nan','total'])
+				index=['bach','hi','pri','sec','nan','total']).astype(float)
 
 		myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
 		myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
@@ -96,6 +98,28 @@ class TestStataMerge(unittest.TestCase):
 		assert_series_equal(cv_nan,df_tab['cell percent','nan'])
 		assert_series_equal(cv_total,df_tab['cell percent','total'])
 
+	# @unittest.skip("demonstrating skipping")
+	def test_tabtwoway_withnans_using_include_exclude(self):
+		
+		myhhkit = hhkit(self.df_master)
+		myhhkit_using_ind = hhkit(self.df_using_ind)
+		cv_alberta  = pd.Series([0, 50, 0, 50], index=['bach','hi','pri','total']).astype(float)
+		cv_bc  = pd.Series([33.33333, 0, 16.66667, 50], index=['bach','hi','pri','total']).astype(float)
+		cv_total  = pd.Series([33.33333, 50, 16.66667, 100], 
+				index=['bach','hi','pri','total']).astype(float)
+
+		myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
+		myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
+
+		# df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, usevarlabels=[True, True], p=True)
+		df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, usevarlabels=[True, True], 
+			include=myhhkit.df['age']>20, p=False)
+		print(myhhkit.df[myhhkit.df['age']>20])
+		print(df_tab)
+
+		assert_series_equal(cv_alberta,df_tab['cell percent','Alberta'])
+		assert_series_equal(cv_bc,df_tab['cell percent','BC'])
+		assert_series_equal(cv_total,df_tab['cell percent','total'])
 if __name__ == '__main__':
 
 	unittest.main()

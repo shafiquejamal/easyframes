@@ -60,16 +60,9 @@ class hhkit(object):
 				self.variable_labels[var] = ''
 		return self.variable_labels
 
-	def set_variable_labels(self, varlabeldict={}):
-		self._initialize_variable_labels()
-		for var in varlabeldict:
-			self.variable_labels[var] = varlabeldict[var]
-		return self.variable_labels
-
-	# Here is a 'count' method for calculating household size
-	def egen(self, obj, operation, groupby, col, column_label='', include=None, exclude=None, varlabel=''):
+	def _make_include_exclude_series(self, df, include, exclude):
 		using_excl = False
-		df=obj.df
+		
 		if (include is None) and (exclude is None):
 			# Make an array or data series same length as df with all entries true - all rows are included
 			include = pd.Series([True]*df.shape[0])
@@ -94,6 +87,18 @@ class hhkit(object):
 
 		if (using_excl):
 			include = np.invert(include)
+		return include
+
+	def set_variable_labels(self, varlabeldict={}):
+		self._initialize_variable_labels()
+		for var in varlabeldict:
+			self.variable_labels[var] = varlabeldict[var]
+		return self.variable_labels
+
+	# Here is a 'count' method for calculating household size
+	def egen(self, obj, operation, groupby, col, column_label='', include=None, exclude=None, varlabel=''):
+		df=obj.df
+		include = self._make_include_exclude_series(df, include, exclude)
 
 		if column_label == '':
 			column_label = '('+operation+') '+col+' by '+groupby
@@ -190,8 +195,11 @@ class hhkit(object):
 		return self.df
 
 	def tab(self, columns, shownan=False, p=True, includenan=True, includenanrows=True, 
-				includenancols=True, dropna=False, decimalplaces=5, usevarlabels=[True, True]):
+				includenancols=True, dropna=False, decimalplaces=5, usevarlabels=[True, True],
+				include=None, exclude=None):
 		
+		include = self._make_include_exclude_series(self.df, include, exclude)
+
 		if (isinstance(columns, str) or (isinstance(columns, Iterable) and len(columns)==1)): 
 		# One way tabulation - tabulation of one variable
 			if (isinstance(columns, str)):
@@ -200,9 +208,9 @@ class hhkit(object):
 				column = columns[0]
 			self.df['_deleteme'] = 1
 			if (includenan):
-				table = pd.crosstab(columns=self.df[column].astype(str), index=self.df['_deleteme'], dropna=dropna)
+				table = pd.crosstab(columns=self.df[column][include].astype(str), index=self.df['_deleteme'][include], dropna=dropna)
 			else:
-				table = pd.crosstab(columns=self.df[column], index=self.df['_deleteme'], dropna=dropna)
+				table = pd.crosstab(columns=self.df[column][include], index=self.df['_deleteme'][include], dropna=dropna)
 			table1 = pd.DataFrame(table.sum(axis=0))
 			table1.index.names = [column]
 			table1.columns = ['count']
@@ -226,7 +234,7 @@ class hhkit(object):
 			return table1
 		elif (isinstance(columns, Iterable)):
 			if (includenanrows and includenancols):
-				table = pd.crosstab(self.df[columns[0]].astype(str), self.df[columns[1]].astype(str), dropna=dropna)
+				table = pd.crosstab(self.df[columns[0]][include].astype(str), self.df[columns[1]][include].astype(str), dropna=dropna)
 			elif (includenanrows and not includenancols):
 				table = pd.crosstab(self.df[columns[0]].astype(str), self.df[columns[1]], dropna=dropna)
 			elif (not includenanrows and includenancols):
@@ -234,6 +242,7 @@ class hhkit(object):
 			else:
 				table = pd.crosstab(self.df[columns[0]], self.df[columns[1]], dropna=dropna)
 			# Add a heirarchical index
+
 			table1 = table.copy()
 			list_of_columns_values = []
 			for c in table.columns.values:
@@ -280,7 +289,9 @@ class hhkit(object):
 				for c_lower in table.columns.values:
 					if (c_lower != 'nan' and c_lower != 'total'):
 						dfs_to_concat += [table1[c_upper, c_lower]]
-				dfs_to_concat += [table1[c_upper, 'nan']]
+				if ('nan' in table.columns.values):
+					dfs_to_concat += [table1[c_upper, 'nan']]
+				
 				if (c_upper != 'column percent'):
 					dfs_to_concat += [table1[c_upper, 'total']]
 			table1 = pd.concat(dfs_to_concat, axis=1)
