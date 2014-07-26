@@ -85,7 +85,7 @@ You can replace the existing dataframe in the hhkit object by passing in a dict 
 myhhkit.from_dict(df_master) # If the object already exists, you can replace the existing dataframe. You 
 							 # 	can pass a data frame or a dict to the from_dict() method.
 ```
-# Egen commands
+## Egen commands
 
 If you are using Stata, and you want to add a column with the household size, the command is simple:
 
@@ -162,19 +162,19 @@ The result:
 8    8   pri     no        1   4            3   3     0  Alberta         3       4       23.750000        2
 9   15   pri     no        1   4            3   4     0  Alberta         3       4       23.750000        2
 ```
-You can also exclude members over 22 years of age:
+You can also exclude members over 22 years of age (just presenting the command, not running it for this demo):
 ```
-hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
+hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhs_o22', exclude=hhkm.df['age']>22,
 			varlabel="hhsize including only members over 22 years of age")
 ```
 You'll noticed that I added a variable label. Variable labels are discussed below. If you don't specify the column label, then a default is constructed.
 
-# Variable labels
+## Variable labels
 Variable labels are supported too. 
 
 ```
 hhkm.set_variable_labels({'hh':'Household ID','id':'Member ID'})
-print(hhkm.sdesc())
+hhkm.sdesc()
 ```
 ```
 -------------------------------------------------------------------------------------
@@ -197,7 +197,7 @@ Variable             Data Type    Variable Label
 'mean age in hh'     float64                                                             
 'hhs_o22'            int64        hhsize including only members over 22 years of age 
 ```
-# Stata-like Merging
+## Stata-like Merging
 
 There is also a Stata-like merge method, which creates a merge variable for you in the dataset (and copies over the variable labels):
 ```
@@ -242,7 +242,7 @@ Variable             Data Type    Variable Label
 'has_fence'          float64                                                             
 '_merge_hh'          int64 
 ```
-Another merge, this one replacing the labels in the original/left/master dataset. I will merge an individual-level dataset with the previously merged dataset:
+Here is another merge, this one replacing the labels in the original/left/master dataset when the same variable appears in both datasets. I will merge an individual-level dataset with the previously merged dataset:
 ```
 hhki.set_variable_labels({'hh':'--> Household ID', 'empl':'Employment status'})
 hhkm.statamerge(hhki, on=['hh','id'], mergevarname='_merge_ind')
@@ -291,12 +291,12 @@ Variable             Data Type    Variable Label
 ```
 The `statamerge` method will not overwrite variables if you set `replacelabels=False` in the method (it is set to `True` by default). After a merge, one normally likes to tabulate the merge variable. That is in the next section. 
 
-# Stata-like tabulations and cross-tabulations (one-way and two-way)
+## Stata-like tabulations and cross-tabulations (one-way and two-way)
 
-## One-way tabulations
+### One-way tabulations
 
 First, lets tabulate a merge variable. This will be a simple one-way tabulation with no weights or exclusions of rows (though we can exclude rows - this is shown further below):
-``
+```
 df_tab_m1 = hhkm.tab('_merge_hh', p=True)
 df_tab_m2 = hhkm.tab('_merge_ind', p=True)
 ```
