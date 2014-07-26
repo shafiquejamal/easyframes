@@ -134,7 +134,8 @@ class hhkit(object):
 		# print('--------'.ljust(varnamewidth), '---------'.ljust(vartypewidth), ' ', '--------------'.ljust(varlabelwidth), end='\n')
 		for x in list_of_vars:
 			print(repr(x).ljust(varnamewidth), str(self.df[x].dtype).ljust(vartypewidth), ' ', self.variable_labels[x].ljust(varlabelwidth), end='\n')
-	
+		return True
+
 	def from_dict(self, *args, **kwargs):
 		self.df = pd.DataFrame(*args, **kwargs)
 		self.variable_labels = {}
@@ -252,16 +253,17 @@ class hhkit(object):
 				print(table1)
 			return table1
 		elif (isinstance(columns, Iterable)):
-			if (includenanrows and includenancols):
-				table = pd.crosstab(self.df[columns[0]][include].astype(str), self.df[columns[1]][include].astype(str), dropna=dropna)
-			elif (includenanrows and not includenancols):
-				table = pd.crosstab(self.df[columns[0]].astype(str), self.df[columns[1]], dropna=dropna)
-			elif (not includenanrows and includenancols):
-				table = pd.crosstab(self.df[columns[0]], self.df[columns[1]].astype(str), dropna=dropna)
-			else:
-				table = pd.crosstab(self.df[columns[0]], self.df[columns[1]], dropna=dropna)
-			# Add a heirarchical index
 
+			if (includenanrows and includenancols):
+				table = pd.crosstab(df[columns[0]].astype(str), df[columns[1]].astype(str), dropna=dropna)
+			elif (includenanrows and not includenancols):
+				table = pd.crosstab(df[columns[0]].astype(str), df[columns[1]], dropna=dropna)
+			elif (not includenanrows and includenancols):
+				table = pd.crosstab(df[columns[0]], df[columns[1]].astype(str), dropna=dropna)
+			else:
+				table = pd.crosstab(df[columns[0]], df[columns[1]], dropna=dropna)
+
+			# Add a heirarchical index
 			table1 = table.copy()
 			list_of_columns_values = []
 			for c in table.columns.values:
@@ -274,6 +276,16 @@ class hhkit(object):
 			for c in table.columns.values:
 				table1['count','total'] += table1.xs(('count',c), axis=1)
 
+			# Here, we should get a one-way tabulation with weights applied
+			one_way_tab_with_weights = self.tab(columns[0], p=False, weightcolumn=weightcolumn, include=include)
+
+			# replace each row in table1 with its fraction of the row total
+			# replace the count total in table1 with the count column in one_way_tab_with_weights
+			for c in table1.columns.values:
+				pass
+				table1[c]=table1[c]/table1[('count','total')]
+				table1[c]=table1[c]*one_way_tab_with_weights['count']
+
 			# Get row percentages
 			for c in table.columns.values:	
 				table1['row percent',c] \
@@ -282,7 +294,7 @@ class hhkit(object):
 			table1['row percent','total'] = 0
 			for c in table.columns.values:
 				table1['row percent','total'] += table1.xs(('row percent',c), axis=1)
-			
+
 			# Get column percentages
 			for c in table.columns.values:
 				if (c != 'nan'):

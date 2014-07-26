@@ -73,7 +73,7 @@ class TestTab(unittest.TestCase):
 		assert_series_equal(correct_values_taboneway_of_merge_count, df_tab['count'])
 		assert_series_equal(correct_values_taboneway_of_merge_percent, df_tab['percent'])
 
-	#@unittest.skip("demonstrating skipping")
+	# @unittest.skip("demonstrating skipping")
 	def test_taboneway_gives_correct_tabulations_for_varswithnan_with_weights(self):
 
 		myhhkit = hhkit(self.df_master)
@@ -135,25 +135,28 @@ class TestTab(unittest.TestCase):
 		assert_series_equal(cv_total,df_tab['cell percent','total'])
 
 	# @unittest.skip("demonstrating skipping")
-	def test_tabtwoway_withnans_using_include_exclude(self):
+	def test_tabtwoway_withnans_using_include_with_weights(self):
 		
 		myhhkit = hhkit(self.df_master)
-		myhhkit_using_ind = hhkit(self.df_using_ind)
-		cv_alberta  = pd.Series([0, 50, 0, 50], index=['bach','hi','pri','total']).astype(float)
-		cv_bc  = pd.Series([33.33333, 0, 16.66667, 50], index=['bach','hi','pri','total']).astype(float)
-		cv_total  = pd.Series([33.33333, 50, 16.66667, 100], 
-				index=['bach','hi','pri','total']).astype(float)
+		myhhkit_using_hh = hhkit(self.df_using_hh)
+		myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_ind')
+		myhhkit.df.loc[myhhkit.df['weighthh'].isnull(), ['weighthh']] = 1
 
-		myhhkit.set_variable_labels({'educ':'Education level','prov':'Province'})
-		myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
+		cv_1  = pd.Series([9.09091, 0, 0, 9.09091, 18.18182], index=['bach','hi','pri','sec','total']).astype(float)
+		cv_2  = pd.Series([0, 13.63636, 0, 0, 13.63636], index=['bach','hi','pri','sec','total']).astype(float)
+		cv_3  = pd.Series([9.09091, 27.27273, 31.81818, 0, 68.18182], index=['bach','hi','pri','sec','total']).astype(float)
+		cv_total  = pd.Series([18.18182, 40.90909, 31.81818, 9.09091, 100], 
+				index=['bach','hi','pri','sec','total']).astype(float)
 
 		# df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, usevarlabels=[True, True], p=True)
-		df_tab = myhhkit.tab(['educ','prov'], decimalplaces=5, usevarlabels=[True, True], 
-			include=myhhkit.df['age']>20, p=False)
+		df_tab = myhhkit.tab(['educ','house_rooms'], decimalplaces=5, usevarlabels=[True, True], 
+			p=False, include=myhhkit.df['age'] > 10, weightcolumn='weighthh') # include=myhhkit.df['age']>10, 
 
-		assert_series_equal(cv_alberta,df_tab['cell percent','Alberta'])
-		assert_series_equal(cv_bc,df_tab['cell percent','BC'])
+		assert_series_equal(cv_1,df_tab['cell percent','1.0'])
+		assert_series_equal(cv_2,df_tab['cell percent','2.0'])
+		assert_series_equal(cv_3,df_tab['cell percent','3.0'])
 		assert_series_equal(cv_total,df_tab['cell percent','total'])
+
 if __name__ == '__main__':
 
 	unittest.main()

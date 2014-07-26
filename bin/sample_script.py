@@ -1,28 +1,11 @@
 import pandas as pd
 from easyframes.easyframes import hhkit
 
-# Load a sample dataset, available on the github page for this package
-df_original = pd.read_csv('sample_hh_dataset.csv')
-df = df_original.copy()
-myhhkit = hhkit('sample_hh_dataset.csv')
-myhhkit.set_variable_labels({'age':'Age in years'})
+# myhhkit = hhkit('mydataset.dta', encoding="latin-1")
 
-# Try some egen commands
-print('------------------------------- Some egen commands ---------------------------------')
-#myhhkit.egen(myhhkit, operation='count', groupby='hh', col='hh', column_label='hhsize', varlabel='Household size')
-#myhhkit.egen(myhhkit, operation='mean', groupby='hh', col='age', column_label='mean age in hh')
-myhhkit.egen(myhhkit, operation='count', groupby='hh', col='hh', column_label='hhs_o22', 
-							include=df['age']>22, varlabel='Household size including only members over 22 years of age')
-#myhhkit.egen(myhhkit, operation='mean', groupby='hh', col='age')
-print(myhhkit.df)
-print(myhhkit.sdesc())
-print('------------------------------- End some egen commands -----------------------------')
-
-print('------------------------------- Some Stata-like merges ---------------------------------')
-# Try some stata-like merges
 df_master = pd.DataFrame(
-	{'educ': {0: 'secondary', 1: 'bachelor', 2: 'primary', 3: 'higher', 4: 'bachelor', 5: 'secondary', 
-		6: 'higher', 7: 'higher', 8: 'primary', 9: 'primary'}, 
+	{'educ': {0: 'pri', 1: 'bach', 2: 'pri', 3: 'hi', 4: 'bach', 5: 'sec', 
+		6: 'hi', 7: 'hi', 8: 'pri', 9: 'pri'}, 
 	 'hh': {0: 1, 1: 1, 2: 1, 3: 2, 4: 3, 5: 3, 6: 4, 7: 4, 8: 4, 9: 4}, 
 	 'id': {0: 1, 1: 2, 2: 3, 3: 1, 4: 1, 5: 2, 6: 1, 7: 2, 8: 3, 9: 4}, 
 	 'has_car': {0: 1, 1: 1, 2: 1, 3: 1, 4: 0, 5: 0, 6: 1, 7: 1, 8: 1, 9: 1}, 
@@ -39,31 +22,53 @@ df_using_hh = pd.DataFrame(
 	 'has_fence': {0: 1, 1: 0, 2: 1, 3: 1, 4: 0}
 	})
 df_using_ind = pd.DataFrame(
-	{'empl': {0: 'not employed', 1: 'full-time', 2: 'part-time', 3: 'part-time', 4: 'full-time', 5: 'part-time', 
-		6: 'self-employed', 7: 'full-time', 8: 'self-employed'}, 
+	{'empl': {0: 'ue', 1: 'ft', 2: 'pt', 3: 'pt', 4: 'ft', 5: 'pt', 
+		6: 'se', 7: 'ft', 8: 'se'}, 
 	 'hh': {0: 1, 1: 1, 2: 1, 3: 2, 4: 5, 5: 5, 6: 4, 7: 4, 8: 4},  
 	 'id': {0: 1, 1: 2, 2: 4, 3: 1, 4: 1, 5: 2, 6: 1, 7: 2, 8: 5}
      })
 
-print('---- Left/Master dataset ---')
-myhhkit.from_dict(df_master)
-myhhkit.set_variable_labels({'hh':'Household ID','id':'Member ID'})
-print(myhhkit.df)
-print(myhhkit.sdesc())
+hhkm = hhkit(df_master) 
+hhkh = hhkit(df_using_hh)  
+hhki = hhkit(df_using_ind) 
 
-print('---- Now merging: ---')
-myhhkit_using_hh = hhkit(df_using_hh)
-# myhhkit_using_hh.from_dict(df_using_hh)
-myhhkit_using_hh.set_variable_labels({'hh':'--> Household ID','has_fence':'This dwelling has a fence'})
-myhhkit.statamerge(myhhkit_using_hh, on=['hh'], mergevarname='_merge_hh', replacelabels=False) 
-print(myhhkit.df)
-print(myhhkit.sdesc())
+print(hhkm.df)
+print(hhkh.df)
+print(hhki.df)
 
-print('---- Another merge: ---')
-myhhkit_using_ind = hhkit(df_using_ind)
-# myhhkit_using_ind.from_dict(df_using_ind)
-myhhkit_using_ind.set_variable_labels({'hh':'--> Household ID', 'empl':'Employment status'})
-myhhkit.statamerge(myhhkit_using_ind, on=['hh','id'], mergevarname='_merge_ind')
-print(myhhkit.df)
-print(myhhkit.sdesc())
-print('------------------------------- End some Stata-like merges ------------------------------')
+# Egen commands
+hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhsize')
+print(hhkm.df)
+
+hhkm.egen(hhkm, operation='mean', groupby='hh', col='age', column_label='mean age in hh')
+print(hhkm.df)
+
+hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
+			varlabel="hhsize including only members over 22 years of age")
+print(hhkm.df)
+
+# Variable labels
+hhkm.set_variable_labels({'hh':'Household ID','id':'Member ID'})
+hhkm.sdesc()
+
+# Merge commands
+hhkm.statamerge(hhkh, on=['hh'], mergevarname='_merge_hh')
+print(hhkm.df)
+hhkm.sdesc()
+
+hhki.set_variable_labels({'hh':'--> Household ID', 'empl':'Employment status'})
+hhkm.statamerge(hhki, on=['hh','id'], mergevarname='_merge_ind')
+print(hhkm.df)
+hhkm.sdesc()
+
+# Tabulations
+df_tab_m1 = hhkm.tab('_merge_hh', p=True)
+df_tab_m2 = hhkm.tab('_merge_ind', p=True)
+df_tab = hhkm.tab('educ', p=True)
+hhkm.set_variable_labels({'educ':'Level of education', 'house_rooms':'Number of rooms in the house',})
+df_tab = hhkm.tab('educ', p=True, weightcolumn='weighthh', include=hhkm.df['age'] > 10, usevarlabels=True)
+
+df_tab = hhkm.tab(['educ','house_rooms'], decimalplaces=5, usevarlabels=[False, False], p=True)
+df_tab = hhkm.tab(['educ','house_rooms'], decimalplaces=5, p=True)
+df_tab = hhkm.tab(['educ','house_rooms'], decimalplaces=5, usevarlabels=[True, True], 
+			p=True, include=hhkm.df['age'] > 10, weightcolumn='weighthh')
