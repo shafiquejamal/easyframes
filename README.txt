@@ -344,7 +344,9 @@ sec                 0.818182    9.090909
 total               9.000000  100.000000
 ```
 
-## Two-way tabulations
+### Two-way tabulations
+
+For two-way tabulations, just provide an interable (list or set) of variable names as the first argument:
 ```
 df_tab = hhkm.tab(['educ','house_rooms'], decimalplaces=5, usevarlabels=[False, False], p=True)
 ```
@@ -389,3 +391,4 @@ pri                           0.000000  0.000000  2.863636  2.863636            
 sec                           0.818182  0.000000  0.000000  0.818182          100   0.00000    0.00000    100              50    0    0.00000       9.09091   0.00000   0.00000    9.09091
 total                         1.636364  1.227273  6.136364  9.000000          NaN       NaN        NaN    NaN             100  100  100.00000      18.18182  13.63636  68.18182  100.00000
 ```
+There might be more, just have a look at the code (which I need to document better, but hopefully the variable names are helpful). Enjoy!
