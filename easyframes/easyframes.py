@@ -96,7 +96,8 @@ class hhkit(object):
 		return self.variable_labels
 
 	# Here is a 'count' method for calculating household size
-	def egen(self, obj, operation, groupby, col, column_label='', include=None, exclude=None, varlabel=''):
+	def egen(self, obj, operation, groupby, col, column_label='', include=None, exclude=None, varlabel='',
+				replacenanwith=None):
 		df=obj.df
 		include = self._make_include_exclude_series(df, include, exclude)
 
@@ -106,7 +107,12 @@ class hhkit(object):
 		result = df[include].groupby(groupby)[col].agg([operation])
 		result.rename(columns={operation:column_label}, inplace=True)
 		merged = pd.merge(df, result, left_on=groupby, right_index=True, how='left')
+
+		if replacenanwith is not None:
+			merged[column_label][merged[column_label].isnull()]=replacenanwith
+
 		self.df = merged
+
 		self.set_variable_labels(varlabeldict={column_label:varlabel,})
 		return merged
 
