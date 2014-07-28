@@ -96,9 +96,12 @@ class hhkit(object):
 		return self.variable_labels
 
 	# Here is a 'count' method for calculating household size
-	def egen(self, obj, operation, groupby, col, column_label='', include=None, exclude=None, varlabel='',
+	def egen(self, operation, groupby, col, obj=None, column_label='', include=None, exclude=None, varlabel='',
 				replacenanwith=None):
-		df=obj.df
+		if obj is None:
+			df = self.df
+		else:
+			df=obj.df
 		include = self._make_include_exclude_series(df, include, exclude)
 
 		if column_label == '':

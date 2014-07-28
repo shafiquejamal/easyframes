@@ -104,7 +104,7 @@ Using the easyframes package, the command would be:
 ```
 from easyframes.easyframes import hhkit
 
-hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhsize')
+hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhsize')
 print(hhkm.df)
 ```
 
@@ -126,7 +126,7 @@ and Bob's your uncle:
 
 Ok, so it doesn't save much typing or space, but suppose you also want to calculate the average age in the household. Here you would simply add the following command
 ```
-hhkm.egen(myhhkit, operation='mean', groupby='hh', col='age', column_label='mean age in hh')
+hhkm.egen(operation='mean', groupby='hh', col='age', column_label='mean age in hh')
 ```
 and here is the result:
 ```
@@ -144,7 +144,7 @@ and here is the result:
 ```
 You can also include or exclude certain rows. For example, suppose we want to include in household size only members over the age of 22:
 ```
-hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
+hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
 			varlabel="hhsize including only members over 22 years of age")
 print(hhkm.df)
 ```
@@ -164,7 +164,7 @@ The result:
 ```
 You can also exclude members over 22 years of age (just presenting the command, not running it for this demo):
 ```
-hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhs_o22', exclude=hhkm.df['age']>22,
+hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhs_o22', exclude=hhkm.df['age']>22,
 			varlabel="hhsize including only members over 22 years of age")
 ```
 You'll noticed that I added a variable label. Variable labels are discussed below. If you don't specify the column label, then a default is constructed.
