@@ -169,6 +169,13 @@ hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhs_o22', exc
 ```
 You'll noticed that I added a variable label. Variable labels are discussed below. If you don't specify the column label, then a default is constructed.
 
+Also, there is an option to sepcify what to replace NaNs with. Egen will fill with NaNs observations where the `col` or `groupby` variables contain NaNs (which can happen after `merge`s, for example.) You can specify `replacenanwith` to replace these NaNs with something else, e.g. `replacenanwith = 0`:
+
+```
+hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhs_o22', exclude=hhkm.df['age']>22,
+			varlabel="hhsize including only members over 22 years of age, replacenanwith = 0" )
+```
+
 ## Variable labels
 Variable labels are supported too. 
 
