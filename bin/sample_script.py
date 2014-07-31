@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from easyframes.easyframes import hhkit
 
 # myhhkit = hhkit('mydataset.dta', encoding="latin-1")
@@ -37,13 +38,13 @@ print(hhkh.df)
 print(hhki.df)
 
 # Egen commands
-hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhsize')
+hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhsize')
 print(hhkm.df)
 
-hhkm.egen(hhkm, operation='mean', groupby='hh', col='age', column_label='mean age in hh')
+hhkm.egen(operation='mean', groupby='hh', col='age', column_label='mean age in hh')
 print(hhkm.df)
 
-hhkm.egen(hhkm, operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
+hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
 			varlabel="hhsize including only members over 22 years of age")
 print(hhkm.df)
 
@@ -72,3 +73,12 @@ df_tab = hhkm.tab(['educ','house_rooms'], decimalplaces=5, usevarlabels=[False, 
 df_tab = hhkm.tab(['educ','house_rooms'], decimalplaces=5, p=True)
 df_tab = hhkm.tab(['educ','house_rooms'], decimalplaces=5, usevarlabels=[True, True], 
 			p=True, include=hhkm.df['age'] > 10, weightcolumn='weighthh')
+
+# Recode/replace
+include = pd.Series([True, False, True, False, True, True, False, True, 
+					 True, True, False, True, False, True, False, False, True],
+			index=np.arange(17)) 
+hhkm.rr('educ',{'pri':'primary','sec':'secondary','hi':'higher education','bach':'bachelor'}, include=include)
+hhkm.rr('has_fence', {0:2,1:np.nan,np.nan:-1}, include=include)
+hhkm.rr('has_car', {0:1,1:0,np.nan:-9}, include=include)
+print(hhkm.df)

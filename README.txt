@@ -398,4 +398,37 @@ pri                           0.000000  0.000000  2.863636  2.863636            
 sec                           0.818182  0.000000  0.000000  0.818182          100   0.00000    0.00000    100              50    0    0.00000       9.09091   0.00000   0.00000    9.09091
 total                         1.636364  1.227273  6.136364  9.000000          NaN       NaN        NaN    NaN             100  100  100.00000      18.18182  13.63636  68.18182  100.00000
 ```
+
+## Recode/Replace
+
+Stata has `recode` and `replace` commands, which do similar operations. With the EasyFrames hhkit, it is one method:
+```
+include = pd.Series([True, False, True, False, True, True, False, True, 
+					 True, True, False, True, False, True, False, False, True],
+			index=np.arange(17)) 
+hhkm.rr('educ',{'pri':'primary','sec':'secondary','hi':'higher education','bach':'bachelor'}, include=include)
+hhkm.rr('has_fence', {0:2,1:np.nan,np.nan:-1}, include=include)
+hhkm.rr('has_car', {0:1,1:0,np.nan:-9}, include=include)
+print(hhkm.df)
+```
+```
+    age fridge  hh  house_rooms  id  male     prov  weighthh  hhsize  mean age in hh  hhs_o22  _merge_hh empl  _merge_ind              educ  has_fence  has_car
+0    44    yes   1            3   1     1       BC         2       3       33.333333        2          1   ue           3           primary         -1        0
+1    43    yes   1            3   2     0       BC         2       3       33.333333        2          1   ft           3              bach        NaN        1
+2    13    yes   1            3   3     1       BC         2       3       33.333333        2          1  NaN           1           primary         -1        0
+3    70     no   2            2   1     1  Alberta         3       1       70.000000        1          3   pt           3                hi          1        1
+4    23    yes   3            1   1     1       BC         2       2       21.500000        1          1  NaN           1          bachelor         -1        1
+5    20    yes   3            1   2     0       BC         2       2       21.500000        1          1  NaN           1         secondary         -1        1
+6    37     no   4            3   1     1  Alberta         3       4       23.750000        2          3   se           3                hi          0        1
+7    35     no   4            3   2     0  Alberta         3       4       23.750000        2          3   ft           3  higher education          2        0
+8     8     no   4            3   3     0  Alberta         3       4       23.750000        2          3  NaN           1           primary          2        0
+9    15     no   4            3   4     0  Alberta         3       4       23.750000        2          3  NaN           1           primary          2        0
+10  NaN    NaN   5          NaN NaN   NaN      NaN       NaN     NaN             NaN      NaN          2  NaN           1               NaN          1      NaN
+11  NaN    NaN   6          NaN NaN   NaN      NaN       NaN     NaN             NaN      NaN          2  NaN           1               NaN        NaN       -9
+12  NaN    NaN   7          NaN NaN   NaN      NaN       NaN     NaN             NaN      NaN          2  NaN           1               NaN          0      NaN
+13  NaN    NaN   1          NaN   4   NaN      NaN       NaN     NaN             NaN      NaN        NaN   pt           2               NaN         -1       -9
+14  NaN    NaN   5          NaN   1   NaN      NaN       NaN     NaN             NaN      NaN        NaN   ft           2               NaN        NaN      NaN
+15  NaN    NaN   5          NaN   2   NaN      NaN       NaN     NaN             NaN      NaN        NaN   pt           2               NaN        NaN      NaN
+16  NaN    NaN   4          NaN   5   NaN      NaN       NaN     NaN             NaN      NaN        NaN   se           2               NaN         -1       -9
+```
 There might be more, just have a look at the code (which I need to document better, but hopefully the variable names are helpful). Enjoy!

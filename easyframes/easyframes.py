@@ -365,3 +365,30 @@ class hhkit(object):
 
 		else:
 			return False
+
+	def rr(self, column, dict_of_values, obj=None, include=None, exclude=None):
+
+		if obj is None:
+			df = self.df
+		else:
+			df=obj.df
+		include = self._make_include_exclude_series(df, include, exclude)
+		include2 = pd.Series(include, index=df.index)
+
+		# Requirement: new values must be the same type (string, numberic) as original values
+		df['_deleteme'] = df[column]
+
+		for k in dict_of_values:
+			if (str(k)=='nan'):
+				mask = pd.Series(df[column].isnull()) & include2
+				df['_deleteme'][mask] = dict_of_values[k]
+			else:
+				mask = pd.Series(df[column]==k) & include2
+				df['_deleteme'][mask] = dict_of_values[k]	
+
+		del df[column]
+		df[column] = df['_deleteme']
+		del df['_deleteme']
+		self.df[column] = df[column]
+
+		return df
