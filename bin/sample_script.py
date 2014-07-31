@@ -38,13 +38,13 @@ print(hhkh.df)
 print(hhki.df)
 
 # Egen commands
-hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhsize')
+hhkm.egen(operation='count', groupby='hh', column='hh', column_label='hhsize')
 print(hhkm.df)
 
-hhkm.egen(operation='mean', groupby='hh', col='age', column_label='mean age in hh')
+hhkm.egen(operation='mean', groupby='hh', column='age', column_label='mean age in hh')
 print(hhkm.df)
 
-hhkm.egen(operation='count', groupby='hh', col='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
+hhkm.egen(operation='count', groupby='hh', column='hh', column_label='hhs_o22', include=hhkm.df['age']>22,
 			varlabel="hhsize including only members over 22 years of age")
 print(hhkm.df)
 
